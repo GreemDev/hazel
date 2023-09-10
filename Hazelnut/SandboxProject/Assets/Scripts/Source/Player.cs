@@ -15,11 +15,10 @@ namespace Sandbox
 
 		public float Speed;
 		public float Time = 0.0f;
+		public bool ZoomDeterminedBySpeed = false;
 
 		void OnCreate()
 		{
-			Console.WriteLine($"Player.OnCreate - {ID}");
-
 			m_Transform = GetComponent<TransformComponent>();
 			m_Rigidbody = GetComponent<Rigidbody2DComponent>();
 		}
@@ -27,7 +26,6 @@ namespace Sandbox
 		void OnUpdate(float ts)
 		{
 			Time += ts;
-			// Console.WriteLine($"Player.OnUpdate: {ts}");
 
 			float speed = Speed;
 			Vector3 velocity = Vector3.Zero;
@@ -46,11 +44,17 @@ namespace Sandbox
 			if (cameraEntity != null)
 			{
 				Camera camera = cameraEntity.As<Camera>();
-
-				if (Input.IsKeyDown(KeyCode.Q))
-					camera.DistanceFromPlayer += speed * 2.0f * ts;
-				else if (Input.IsKeyDown(KeyCode.E))
-					camera.DistanceFromPlayer -= speed * 2.0f * ts;
+				if (ZoomDeterminedBySpeed)
+				{
+					
+				} 
+				else
+				{
+					if (Input.IsKeyDown(KeyCode.Q))
+						camera.DistanceFromPlayer += speed * 2.0f * ts;
+					else if (Input.IsKeyDown(KeyCode.E))
+						camera.DistanceFromPlayer -= speed * 2.0f * ts;
+				}
 			}
 
 			velocity *= speed * ts;

@@ -35,20 +35,21 @@ namespace Hazel
 
 		public T GetComponent<T>() where T : Component, new()
 		{
-			if (!HasComponent<T>())
-				return null;
-
-			T component = new T() { Entity = this };
-			return component;
+			if (HasComponent<T>())
+			{
+				T component = new T() { Entity = this };
+				return component;
+			}
+			return null;
 		}
 		
 		public Entity FindEntityByName(string name)
 		{
 			ulong entityID = InternalCalls.Entity_FindEntityByName(name);
-			if (entityID == 0)
-				return null;
 
-			return new Entity(entityID);
+			return entityID == 0 
+				? null
+				: new Entity(entityID);
 		}
 
 		public T As<T>() where T : Entity, new()

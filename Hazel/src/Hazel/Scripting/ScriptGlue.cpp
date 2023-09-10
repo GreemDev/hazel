@@ -5,11 +5,13 @@
 #include "Hazel/Core/UUID.h"
 #include "Hazel/Core/KeyCodes.h"
 #include "Hazel/Core/Input.h"
+#include "Hazel/Core/Log.h"
 
 #include "Hazel/Scene/Scene.h"
 #include "Hazel/Scene/Entity.h"
 
 #include "Hazel/Physics/Physics2D.h"
+
 
 #include "mono/metadata/object.h"
 #include "mono/metadata/reflection.h"
@@ -33,24 +35,6 @@ namespace Hazel {
 	static std::unordered_map<MonoType*, std::function<bool(Entity)>> s_EntityHasComponentFuncs;
 
 #define HZ_ADD_INTERNAL_CALL(Name) mono_add_internal_call("Hazel.InternalCalls::" #Name, Name)
-
-	static void NativeLog(MonoString* string, int parameter)
-	{
-		std::string str = Utils::MonoStringToString(string);
-		std::cout << str << ", " << parameter << std::endl;
-	}
-
-	static void NativeLog_Vector(glm::vec3* parameter, glm::vec3* outResult)
-	{
-		HZ_CORE_WARN("Value: {0}", *parameter);
-		*outResult = glm::normalize(*parameter);
-	}
-
-	static float NativeLog_VectorDot(glm::vec3* parameter)
-	{
-		HZ_CORE_WARN("Value: {0}", *parameter);
-		return glm::dot(*parameter, *parameter);
-	}
 
 	static MonoObject* GetScriptInstance(UUID entityID)
 	{
@@ -102,6 +86,106 @@ namespace Hazel {
 		HZ_CORE_ASSERT(entity);
 
 		entity.GetComponent<TransformComponent>().Translation = *translation;
+	}
+
+	static void TransformComponent_GetRotation(UUID entityID, glm::vec3* outRotation)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		HZ_CORE_ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(entityID);
+		HZ_CORE_ASSERT(entity);
+
+		*outRotation = entity.GetComponent<TransformComponent>().Rotation;
+	}
+
+	static void TransformComponent_SetRotation(UUID entityID, glm::vec3* rotation)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		HZ_CORE_ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(entityID);
+		HZ_CORE_ASSERT(entity);
+
+		entity.GetComponent<TransformComponent>().Rotation = *rotation;
+	}
+
+	static void TransformComponent_GetScale(UUID entityID, glm::vec3* outScale)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		HZ_CORE_ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(entityID);
+		HZ_CORE_ASSERT(entity);
+
+		*outScale = entity.GetComponent<TransformComponent>().Scale;
+	}
+
+	static void TransformComponent_SetScale(UUID entityID, glm::vec3* scale)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		HZ_CORE_ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(entityID);
+		HZ_CORE_ASSERT(entity);
+
+		entity.GetComponent<TransformComponent>().Scale = *scale;
+	}
+
+	static void CircleRendererComponent_GetColor(UUID entityID, glm::vec4* outColor)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		HZ_CORE_ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(entityID);
+		HZ_CORE_ASSERT(entity);
+
+		*outColor = entity.GetComponent<CircleRendererComponent>().Color;
+	}
+
+	static void CircleRendererComponent_SetColor(UUID entityID, glm::vec4* color) 
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		HZ_CORE_ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(entityID);
+		HZ_CORE_ASSERT(entity);
+
+		entity.GetComponent<CircleRendererComponent>().Color = *color;
+	}
+
+	static float CircleRendererComponent_GetThickness(UUID entityID)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		HZ_CORE_ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(entityID);
+		HZ_CORE_ASSERT(entity);
+
+		return entity.GetComponent<CircleRendererComponent>().Thickness;
+	}
+
+	static void CircleRendererComponent_SetThickness(UUID entityID, float thickness)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		HZ_CORE_ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(entityID);
+		HZ_CORE_ASSERT(entity);
+
+		entity.GetComponent<CircleRendererComponent>().Thickness = thickness;
+	}
+
+	static float CircleRendererComponent_GetFade(UUID entityID)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		HZ_CORE_ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(entityID);
+		HZ_CORE_ASSERT(entity);
+
+		return entity.GetComponent<CircleRendererComponent>().Fade;
+	}
+
+	static void CircleRendererComponent_SetFade(UUID entityID, float fade)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		HZ_CORE_ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(entityID);
+		HZ_CORE_ASSERT(entity);
+
+		entity.GetComponent<CircleRendererComponent>().Fade = fade;
 	}
 
 	static void Rigidbody2DComponent_ApplyLinearImpulse(UUID entityID, glm::vec2* impulse, glm::vec2* point, bool wake)
@@ -266,6 +350,38 @@ namespace Hazel {
 		return Input::IsKeyPressed(keycode);
 	}
 
+	static void Logger_Trace(MonoString* string) 
+	{
+		HZ_TRACE(Utils::MonoStringToString(string));
+	}
+
+	static void Logger_Info(MonoString* string)
+	{
+		HZ_INFO(Utils::MonoStringToString(string));
+	}
+
+	static void Logger_Warn(MonoString* string)
+	{
+		HZ_WARN(Utils::MonoStringToString(string));
+	}
+
+	static void Logger_Error(MonoString* string)
+	{
+		HZ_ERROR(Utils::MonoStringToString(string));
+	}
+
+	static void Logger_Critical(MonoString* string)
+	{
+		HZ_CRITICAL(Utils::MonoStringToString(string));
+	}
+
+	static void Logger_cout(MonoString* string) 
+	{
+		std::string logMessage = Utils::MonoStringToString(string);
+		std::cout << logMessage << std::endl;
+	}
+
+
 	template<typename... Component>
 	static void RegisterComponent()
 	{
@@ -300,10 +416,6 @@ namespace Hazel {
 
 	void ScriptGlue::RegisterFunctions()
 	{
-		HZ_ADD_INTERNAL_CALL(NativeLog);
-		HZ_ADD_INTERNAL_CALL(NativeLog_Vector);
-		HZ_ADD_INTERNAL_CALL(NativeLog_VectorDot);
-
 		HZ_ADD_INTERNAL_CALL(GetScriptInstance);
 
 		HZ_ADD_INTERNAL_CALL(Entity_HasComponent);
@@ -311,6 +423,17 @@ namespace Hazel {
 
 		HZ_ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
 		HZ_ADD_INTERNAL_CALL(TransformComponent_SetTranslation);
+		HZ_ADD_INTERNAL_CALL(TransformComponent_GetRotation);
+		HZ_ADD_INTERNAL_CALL(TransformComponent_SetRotation);
+		HZ_ADD_INTERNAL_CALL(TransformComponent_GetScale);
+		HZ_ADD_INTERNAL_CALL(TransformComponent_SetScale);
+
+		HZ_ADD_INTERNAL_CALL(CircleRendererComponent_GetColor);
+		HZ_ADD_INTERNAL_CALL(CircleRendererComponent_SetColor);
+		HZ_ADD_INTERNAL_CALL(CircleRendererComponent_GetThickness);
+		HZ_ADD_INTERNAL_CALL(CircleRendererComponent_SetThickness);
+		HZ_ADD_INTERNAL_CALL(CircleRendererComponent_GetFade);
+		HZ_ADD_INTERNAL_CALL(CircleRendererComponent_SetFade);
 		
 		HZ_ADD_INTERNAL_CALL(Rigidbody2DComponent_ApplyLinearImpulse);
 		HZ_ADD_INTERNAL_CALL(Rigidbody2DComponent_ApplyLinearImpulseToCenter);
@@ -328,6 +451,12 @@ namespace Hazel {
 		HZ_ADD_INTERNAL_CALL(TextComponent_SetLineSpacing);
 
 		HZ_ADD_INTERNAL_CALL(Input_IsKeyDown);
-	}
 
+		HZ_ADD_INTERNAL_CALL(Logger_Trace);
+		HZ_ADD_INTERNAL_CALL(Logger_Info);
+		HZ_ADD_INTERNAL_CALL(Logger_Warn);
+		HZ_ADD_INTERNAL_CALL(Logger_Error);
+		HZ_ADD_INTERNAL_CALL(Logger_Critical);
+		HZ_ADD_INTERNAL_CALL(Logger_cout);
+	}
 }

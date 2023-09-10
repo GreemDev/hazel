@@ -153,8 +153,7 @@ namespace Hazel {
 		{
 			s_Data->AssemblyReloadPending = true;
 
-			Application::Get().SubmitToMainThread([]()
-			{
+			Application::Get().SubmitToMainThread([]() {
 				s_Data->AppAssemblyFileWatcher.reset();
 				ScriptEngine::ReloadAssembly();
 			});
@@ -425,11 +424,6 @@ namespace Hazel {
 			}
 
 		}
-
-		auto& entityClasses = s_Data->EntityClasses;
-
-		//mono_field_get_value()
-
 	}
 
 	MonoImage* ScriptEngine::GetCoreAssemblyImage()

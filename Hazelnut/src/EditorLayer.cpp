@@ -3,7 +3,6 @@
 #include "Hazel/Utils/PlatformUtils.h"
 #include "Hazel/Math/Math.h"
 #include "Hazel/Scripting/ScriptEngine.h"
-#include "Hazel/Renderer/Font.h"
 
 #include <imgui/imgui.h>
 
@@ -14,12 +13,9 @@
 
 namespace Hazel {
 
-	static Ref<Font> s_Font;
-
 	EditorLayer::EditorLayer()
 		: Layer("EditorLayer"), m_CameraController(1280.0f / 720.0f), m_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
 	{
-		s_Font = Font::GetDefault();
 	}
 
 	void EditorLayer::OnAttach()
@@ -254,7 +250,8 @@ namespace Hazel {
 		ImGui::Begin("Settings");
 		ImGui::Checkbox("Show physics colliders", &m_ShowPhysicsColliders);
 
-		ImGui::Image((ImTextureID)s_Font->GetAtlasTexture()->GetRendererID(), { 512,512 }, {0, 1}, {1, 0});
+		//TODO(Evan): mostly used to verify MSDF font atlases are being created correctly, and they are, remove at some point
+		//ImGui::Image((ImTextureID)s_Font->GetAtlasTexture()->GetRendererID(), { 512,512 }, {0, 1}, {1, 0});
 
 
 		ImGui::End();

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Hazel
+﻿namespace Hazel
 {
 	public abstract class Component
 	{
 		public Entity Entity { get; internal set; }
+		public ulong EntityId => Entity.ID;
 	}
 
 	public class TransformComponent : Component
@@ -17,13 +12,30 @@ namespace Hazel
 		{
 			get
 			{
-				InternalCalls.TransformComponent_GetTranslation(Entity.ID, out Vector3 translation);
+				InternalCalls.TransformComponent_GetTranslation(EntityId, out Vector3 translation);
 				return translation;
 			}
-			set
+			set => InternalCalls.TransformComponent_SetTranslation(EntityId, ref value);
+		}
+
+		public Vector3 Rotation
+		{
+			get
 			{
-				InternalCalls.TransformComponent_SetTranslation(Entity.ID, ref value);
+				InternalCalls.TransformComponent_GetRotation(EntityId, out Vector3 rotation);
+				return rotation;
 			}
+			set => InternalCalls.TransformComponent_SetRotation(EntityId, ref value);
+		}
+
+		public Vector3 Scale
+		{
+			get
+			{
+				InternalCalls.TransformComponent_GetScale(EntityId, out Vector3 scale);
+				return scale;
+			}
+			set => InternalCalls.TransformComponent_SetScale(EntityId, ref value);
 		}
 	}
 
@@ -35,27 +47,22 @@ namespace Hazel
 		{
 			get
 			{
-				InternalCalls.Rigidbody2DComponent_GetLinearVelocity(Entity.ID, out Vector2 velocity);
+				InternalCalls.Rigidbody2DComponent_GetLinearVelocity(EntityId, out Vector2 velocity);
 				return velocity;
 			}
 		}
-
+		
 		public BodyType Type
 		{
-			get => InternalCalls.Rigidbody2DComponent_GetType(Entity.ID);
-			set => InternalCalls.Rigidbody2DComponent_SetType(Entity.ID, value);
+			get => InternalCalls.Rigidbody2DComponent_GetType(EntityId);
+			set => InternalCalls.Rigidbody2DComponent_SetType(EntityId, value);
 		}
 
-		public void ApplyLinearImpulse(Vector2 impulse, Vector2 worldPosition, bool wake)
-		{
-			InternalCalls.Rigidbody2DComponent_ApplyLinearImpulse(Entity.ID, ref impulse, ref worldPosition, wake);
-		}
-
+		public void ApplyLinearImpulse(Vector2 impulse, Vector2 worldPosition, bool wake) 
+			=> InternalCalls.Rigidbody2DComponent_ApplyLinearImpulse(EntityId, ref impulse, ref worldPosition, wake);
+		
 		public void ApplyLinearImpulse(Vector2 impulse, bool wake)
-		{
-			InternalCalls.Rigidbody2DComponent_ApplyLinearImpulseToCenter(Entity.ID, ref impulse, wake);
-		}
-
+			=> InternalCalls.Rigidbody2DComponent_ApplyLinearImpulseToCenter(EntityId, ref impulse, wake);
 	}
 
 	public class TextComponent : Component
@@ -63,36 +70,55 @@ namespace Hazel
 
 		public string Text
 		{
-			get => InternalCalls.TextComponent_GetText(Entity.ID);
-			set => InternalCalls.TextComponent_SetText(Entity.ID, value);
+			get => InternalCalls.TextComponent_GetText(EntityId);
+			set => InternalCalls.TextComponent_SetText(EntityId, value);
 		}
 
 		public Vector4 Color
 		{
 			get
 			{
-				InternalCalls.TextComponent_GetColor(Entity.ID, out Vector4 color);
+				InternalCalls.TextComponent_GetColor(EntityId, out Vector4 color);
 				return color;
 			}
 
-			set
-			{
-				InternalCalls.TextComponent_SetColor(Entity.ID, ref value);
-			}
+			set => InternalCalls.TextComponent_SetColor(EntityId, ref value);
 		}
 
 		public float Kerning
 		{
-			get => InternalCalls.TextComponent_GetKerning(Entity.ID);
-			set => InternalCalls.TextComponent_SetKerning(Entity.ID, value);
+			get => InternalCalls.TextComponent_GetKerning(EntityId);
+			set => InternalCalls.TextComponent_SetKerning(EntityId, value);
 		}
 
 		public float LineSpacing
 		{
-			get => InternalCalls.TextComponent_GetLineSpacing(Entity.ID);
-			set => InternalCalls.TextComponent_SetLineSpacing(Entity.ID, value);
+			get => InternalCalls.TextComponent_GetLineSpacing(EntityId);
+			set => InternalCalls.TextComponent_SetLineSpacing(EntityId, value);
 		}
 
 	}
 
+	public class CircleRendererComponent : Component
+	{
+		public Vector4 Color
+		{
+			get
+			{
+				InternalCalls.CircleRendererComponent_GetColor(EntityId, out Vector4 color);
+				return color;
+			}
+			set => InternalCalls.CircleRendererComponent_SetColor(EntityId, ref value);
+		}
+		public float Thickness
+		{
+			get => InternalCalls.CircleRendererComponent_GetThickness(EntityId);
+			set => InternalCalls.CircleRendererComponent_SetThickness(EntityId, value);
+		}
+		public float Fade
+		{
+			get => InternalCalls.CircleRendererComponent_GetFade(EntityId);
+			set => InternalCalls.CircleRendererComponent_SetFade(EntityId, value);
+		}
+	}
 }

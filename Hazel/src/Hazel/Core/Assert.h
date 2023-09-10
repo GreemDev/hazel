@@ -6,7 +6,7 @@
 
 #ifdef HZ_ENABLE_ASSERTS
 
-	// Alteratively we could use the same "default" message for both "WITH_MSG" and "NO_MSG" and
+	// Alternatively we could use the same "default" message for both "WITH_MSG" and "NO_MSG" and
 	// provide support for custom formatting by concatenating the formatting string instead of having the format inside the default message
 	#define HZ_INTERNAL_ASSERT_IMPL(type, check, msg, ...) { if(!(check)) { HZ##type##ERROR(msg, __VA_ARGS__); HZ_DEBUGBREAK(); } }
 	#define HZ_INTERNAL_ASSERT_WITH_MSG(type, check, ...) HZ_INTERNAL_ASSERT_IMPL(type, check, "Assertion failed: {0}", __VA_ARGS__)
